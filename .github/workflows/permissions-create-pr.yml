@@ -12,8 +12,6 @@ jobs:
   # See: https://github.community/t/trigger-job-on-branch-created/16878/5
   should_create_pr:
     name: Check if PR for branch already exists
-    permissions:
-      pull-requests: read
     runs-on: ubuntu-latest
     outputs:
       result: ${{ steps.is_release_branch_without_pr.outputs.result }}
@@ -26,15 +24,16 @@ jobs:
           script: |
             // Search for an existing PR with head & base
             //  that match the created branch
-            const [releaseBranchName] = context.ref.match("release/v[0-9]+\.[0-9]+\.[0-9]+") || []
+            let [releaseBranchName] = context.ref.match("release/v[0-9]+\.[0-9]+\.[0-9]+") || []
             if(!releaseBranchName) { return false }
+            releaseBranchName = "release/v0.0.1"
             const {data: prs} = await github.pulls.list({
                 ...context.repo,
                 state: 'open',
                 head: `briansmith:${releaseBranchName}`,
                 base: context.payload.master_branch
             })
-            return prs.length === 0
+            return prs.length === 1
   create_pr:
     needs: should_create_pr
     if: needs.should_create_pr.outputs.result == 'true'
