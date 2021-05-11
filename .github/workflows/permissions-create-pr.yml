@@ -12,8 +12,6 @@ jobs:
   # See: https://github.community/t/trigger-job-on-branch-created/16878/5
   should_create_pr:
     name: Check if PR for branch already exists
-    permissions:
-      pull-requests: read
     runs-on: ubuntu-latest
     outputs:
       result: ${{ steps.is_release_branch_without_pr.outputs.result }}
